@@ -1,1 +1,9 @@
+
+# Python
 .venv/
+
+# Robot Framework output
+log.html
+output.xml
+report.html
+
