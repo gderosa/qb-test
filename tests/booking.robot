@@ -76,8 +76,8 @@ Query Bookings by Firstname and lastname
 
 Query Bookings by checkin and checkout dates
     [Documentation]    Expect an Array of bookings, each with an Integer bookingid. Filter by checkin and checkout dates.
-    GET         /booking?checkin\=2014-03-13&checkout\=2014-05-21        headers={"Cookie": "token=${TOKEN}"}
-    # Output
+    GET         /booking?checkin\=2014-03-13&checkout\=2014-05-21        headers={"Cookie": "token=${TOKEN}", "Accept": "application/json"}
+    Output
     Integer     response status                                 200
     Array       response body
     Object      $[?(@.bookingid\=\=${CREATED_BOOKING_ID})]
@@ -85,7 +85,7 @@ Query Bookings by checkin and checkout dates
 Get Created Booking
     [Documentation]    Expect a booking with the created bookingid.
     GET         /booking/${CREATED_BOOKING_ID}        headers={"Cookie": "token=${TOKEN}", "Accept": "application/json"}
-    Output
+    # Output
     Integer     response status                                 200
     Object      response body
     String      response body firstname                 Sally
@@ -101,6 +101,7 @@ Get Created Booking
 Get First Found Booking
     [Documentation]    Expect a booking with the first found bookingid.
     GET         /booking/${FIRST_FOUND_BOOKING_ID}        headers={"Cookie": "token=${TOKEN}", "Accept": "application/json"}
+    # Output
     Integer     response status                                 200
     Object      response body
     String      response body firstname
@@ -118,7 +119,9 @@ Update First Found Booking
     ...         body={"firstname": "John", "lastname": "Doe", "totalprice": 222, "depositpaid": false, "bookingdates": {"checkin": "2024-01-01", "checkout": "2024-01-02"}, "additionalneeds": "Dinner"}
     ...         headers={"Cookie": "token=${TOKEN}", "Content-Type": "application/json", "Accept": "application/json"}
 
-    Integer     response status                                 200
+    
+
+    Integer     response status                         200
 
     Object      response body
     String      response body firstname                 John
