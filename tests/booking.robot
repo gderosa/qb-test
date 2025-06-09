@@ -79,4 +79,3 @@ Query Bookings by checkin and checkout dates
     GET         /booking?checkin\=2014-03-13&checkout\=2014-05-21        headers={"Cookie": "token=${TOKEN}"}
     Integer     response status                                 200
     Array       response body
-    # The response might be empty. TODO: Add a check for empty response if needed.
