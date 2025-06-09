@@ -3,6 +3,7 @@
 .venv/
 
 # Robot Framework output
+results/
 log.html
 output.xml
 report.html

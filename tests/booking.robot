@@ -2,23 +2,49 @@
 Library         REST    url=https://restful-booker.herokuapp.com/    loglevel=INFO
 
 *** Variables ***
-${USERNAME}       admin
-${PASSWORD}       password123
-${TOKEN}          None
+${USERNAME}             admin
+${PASSWORD}             password123
+${TOKEN}                None
+${CREATED_BOOKING_ID}   None
 
 *** Test Cases ***
 Authenticate and retrieve token
     POST    /auth    body={"username": "${USERNAME}", "password": "${PASSWORD}"}
 
-    ${token_value}=    Output    $.token
-    Set Suite Variable    ${TOKEN}    ${token_value}
+    ${token_value}=     Output      $.token
+    Set Suite Variable  ${TOKEN}    ${token_value}
 
-    Log To Console    ${TOKEN}
+    Log To Console      ${TOKEN}
 
 Show Token is preserved
-    Log To Console    ${TOKEN}
+    Log To Console      ${TOKEN}
 
-# TODO: DRY or use data-driven tests
+# TODO: posibly DRY or use data-driven tests
+
+# NOTE (2025-06-09): It appears as this deliberately fails with a 418 / I'm a Tespot :
+# NOTE (2025-06-09): https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/418 
+# NOTE (2025-06-09): But the entry is created, as it appears from the following test cases
+Create a Booking
+    [Documentation]    Expect a booking to be created with a bookingid.
+    POST    /booking        
+    ...    body={"firstname": "Sally", "lastname": "Brown", "totalprice": 111, "depositpaid": true, "bookingdates": {"checkin": "2014-03-13", "checkout": "2014-05-21"}, "additionalneeds": "Breakfast"}
+    ...    headers={"Cookie": "token=${TOKEN}"}
+    
+    Integer    response body bookingid
+    ${CREATED_BOOKING_ID}=    Output    $.bookingid
+    Set Suite Variable    ${CREATED_BOOKING_ID}    ${CREATED_BOOKING_ID}
+    Log To Console    Created Booking ID: ${CREATED_BOOKING_ID}
+
+    Object      response body booking
+    String      response body booking firstname                 Sally
+    String      response body booking lastname                  Brown
+    Integer     response body booking bookingid
+    Integer     response body booking totalprice                111 
+    Boolean     response body booking depositpaid               true
+    Object      response body booking bookingdates
+    String      response body booking bookingdates checkin      2014-03-13
+    String      response body booking bookingdates checkout     2014-05-21
+    String      response body booking additionalneeds           Breakfast
 
 Get Bookings
     [Documentation]    Expect an Array of bookings, each with an Integer bookingid.
@@ -29,8 +55,8 @@ Get Bookings
 
 Query Bookings by Firstname and lastname
     [Documentation]    Expect an Array of bookings, each with an Integer bookingid. Filter by firstname and lastname.
-    GET         /booking?firstname\=sally&lastname\=brown        headers={"Cookie": "token=${TOKEN}"}
-
+    GET         /booking?firstname\=Sally&lastname\=Brown        headers={"Cookie": "token=${TOKEN}"}
+    Output
     Array       response body
     # The response might be empty. TODO: Add a check for empty response if needed.
 
