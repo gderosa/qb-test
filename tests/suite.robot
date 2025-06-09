@@ -7,8 +7,14 @@ ${PASSWORD}       password123
 ${TOKEN}          None
 
 *** Test Cases ***
-Authenticate
-    [Documentation]    Authenticate and retrieve a token
-    POST    /auth    body={\"username\": \"${USERNAME}\", \"password\": \"${PASSWORD}\"}
-    Output
+Authenticate and retrieve token
+    POST    /auth    body={"username": "${USERNAME}", "password": "${PASSWORD}"}
+
+    ${token_value}=    Output    $.token
+    Set Suite Variable    ${TOKEN}    ${token_value}
+
+    Log To Console    ${TOKEN}
+
+Show Token is preserved
+    Log To Console    ${TOKEN}
    
