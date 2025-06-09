@@ -77,7 +77,7 @@ Query Bookings by Firstname and lastname
 Query Bookings by checkin and checkout dates
     [Documentation]    Expect an Array of bookings, each with an Integer bookingid. Filter by checkin and checkout dates.
     GET         /booking?checkin\=2014-03-13&checkout\=2014-05-21        headers={"Cookie": "token=${TOKEN}", "Accept": "application/json"}
-    Output
+    # Output
     Integer     response status                                 200
     Array       response body
     Object      $[?(@.bookingid\=\=${CREATED_BOOKING_ID})]
@@ -132,3 +132,31 @@ Update First Found Booking
     String      response body bookingdates checkin      2024-01-01
     String      response body bookingdates checkout     2024-01-02
     String      response body additionalneeds           Dinner
+
+Partial Update First Found Booking
+    [Documentation]    Expect a booking with the first found bookingid to be updated partially.
+    PATCH         /booking/${FIRST_FOUND_BOOKING_ID}
+    ...         body={"additionalneeds": "Twin Beds"}
+    ...         headers={"Cookie": "token=${TOKEN}", "Content-Type": "application/json", "Accept": "application/json"}
+
+    Integer     response status                         200
+
+    Object      response body
+    String      response body firstname                 John
+    String      response body lastname                  Doe
+    Integer     response body totalprice                222
+    Boolean     response body depositpaid               false
+    Object      response body bookingdates
+    String      response body bookingdates checkin      2024-01-01
+    String      response body bookingdates checkout     2024-01-02
+    String      response body additionalneeds           Twin Beds
+
+Delete Created Booking
+    [Documentation]    Expect the created booking to be deleted.
+    DELETE      /booking/${CREATED_BOOKING_ID}        headers={"Cookie": "token=${TOKEN}", "Accept": "application/json"}
+
+    Integer     response status                         201
+
+    # Verify that the booking is deleted.
+    GET         /booking/${CREATED_BOOKING_ID}        headers={"Cookie": "token=${TOKEN}", "Accept": "application/json"}
+    Integer     response status                         404
