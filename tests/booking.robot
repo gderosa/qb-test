@@ -72,8 +72,8 @@ Query Bookings by Firstname and lastname
     GET         /booking?firstname\=Sally&lastname\=Brown       headers={"Cookie": "token=${TOKEN}"}
     Integer     response status                                 200
     Array       response body
-    # The response might be empty. TODO: Add a check for empty response if needed.
-
+    Integer     $[0].bookingid
+    
 Query Bookings by checkin and checkout dates
     [Documentation]    Expect an Array of bookings, each with an Integer bookingid. Filter by checkin and checkout dates.
     GET         /booking?checkin\=2014-03-13&checkout\=2014-05-21        headers={"Cookie": "token=${TOKEN}"}
