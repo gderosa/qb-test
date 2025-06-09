@@ -19,8 +19,12 @@ Show Token is preserved
     Log To Console    ${TOKEN}
 
 Get Bookings
-    GET    /booking    headers={"Cookie": "token=${TOKEN}"}
-    Array    response body
-    Output
-    Integer    $[0].bookingid
+    [Documentation]    Expect an Array of bookings, each with an Integer bookingid.
+
+    GET         /booking        headers={"Cookie": "token=${TOKEN}"}
+
+    # Output    # DEBUG
+
+    Array       response body
+    Integer     $[0].bookingid
    
