@@ -17,4 +17,10 @@ Authenticate and retrieve token
 
 Show Token is preserved
     Log To Console    ${TOKEN}
+
+Get Bookings
+    GET    /booking    headers={"Cookie": "token=${TOKEN}"}
+    Array    response body
+    Output
+    Integer    $[0].bookingid
    
