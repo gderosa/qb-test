@@ -14,10 +14,6 @@ ${TOKEN}                    None
 ${CREATED_BOOKING_ID}       None
 ${FIRST_FOUND_BOOKING_ID}   None
 
-# NOTE: Unfortunately, RESTinstance does not seem to support token auth natively, or it is not documented
-# NOTE: (or it is supported in one of its dependencies). TODO: Investigate.
-# NOTE: This is not standard OAuth / JWT, uses cookies etc.
-
 *** Test Cases ***
 Authenticate and retrieve token
     POST    /auth    body={"username": "${USERNAME}", "password": "${PASSWORD}"}
