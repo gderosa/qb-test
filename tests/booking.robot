@@ -1,6 +1,9 @@
 # https://github.com/asyrjasalo/RESTinstance
 # https://asyrjasalo.github.io/RESTinstance
 
+# TODO: API URL should be configurable via env var or command line argument or external config file.
+# TODO: Same with credentials, plus file permission check, or prompting the user for them.
+
 *** Settings ***
 Library         REST    url=https://restful-booker.herokuapp.com/    loglevel=INFO
 

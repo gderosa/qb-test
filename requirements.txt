@@ -1,7 +1,10 @@
-# run
+## Runtime
+
 robotframework~=7.3
 RESTinstance~=1.5.2
 
-# dev
+## Dev
+
+# Otherwise, VSCode Robot Framework (RF) extension does not find where RF is 
 setuptools~=80.9.0
 
