@@ -5,7 +5,7 @@
 # TODO: Same with credentials, plus file permission check, or prompting the user for them.
 
 *** Settings ***
-Library         REST    url=https://restful-booker.herokuapp.com/    loglevel=TRACE
+Library         REST    url=https://restful-booker.herokuapp.com/
 
 *** Variables ***
 ${USERNAME}                 admin
@@ -15,8 +15,7 @@ ${CREATED_BOOKING_ID}       None
 ${FIRST_FOUND_BOOKING_ID}   None
 
 # NOTE: Unfortunately, RESTinstance does not seem to support token auth natively, or it is not documented
-# NOTE: (or it is supported in one of its dependencies).
-# TODO: Investigate.
+# NOTE: (or it is supported in one of its dependencies). TODO: Investigate.
 # NOTE: This is not standard OAuth / JWT, uses cookies etc.
 
 *** Test Cases ***
@@ -25,11 +24,6 @@ Authenticate and retrieve token
 
     ${token_value}=     Output      $.token
     Set Suite Variable  ${TOKEN}    ${token_value}
-
-    Log To Console      ${TOKEN}
-
-Show Token is preserved
-    Log To Console      ${TOKEN}
 
 Create a Booking
     [Documentation]    Expect a booking to be created with a bookingid.
