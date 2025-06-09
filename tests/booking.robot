@@ -31,16 +31,11 @@ Authenticate and retrieve token
 Show Token is preserved
     Log To Console      ${TOKEN}
 
-# TODO: posibly DRY or use data-driven tests (DataDriver)? -- https://docs.robotframework.org/docs/testcase_styles/datadriven
-
-# NOTE (2025-06-09): It appears as this deliberately fails with a 418 / I'm a Teapot :
-# NOTE (2025-06-09): https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/418
-# NOTE (2025-06-09): Without getting the created bookingid, more test cases will fail.
 Create a Booking
     [Documentation]    Expect a booking to be created with a bookingid.
     POST    /booking
     ...    body={"firstname": "Sally", "lastname": "Brown", "totalprice": 111, "depositpaid": true, "bookingdates": {"checkin": "2014-03-13", "checkout": "2014-05-21"}, "additionalneeds": "Breakfast"}
-    ...    headers={"Cookie": "token=${TOKEN}"}
+    ...    headers={"Cookie": "token=${TOKEN}", "Content-Type": "application/json", "Accept": "application/json"}
 
     Integer     response status                                 200     201
 
@@ -52,7 +47,7 @@ Create a Booking
     Object      response body booking
     String      response body booking firstname                 Sally
     String      response body booking lastname                  Brown
-    Integer     response body booking bookingid
+    
     Integer     response body booking totalprice                111
     Boolean     response body booking depositpaid               true
     Object      response body booking bookingdates
@@ -68,12 +63,12 @@ Get Bookings
     Integer     $[0].bookingid
     ${FIRST_FOUND_BOOKING_ID}=    Output    $[0].bookingid
     Set Suite Variable    ${FIRST_FOUND_BOOKING_ID}    ${FIRST_FOUND_BOOKING_ID}
-    Log To Console    First Found Booking ID: ${CREATED_BOOKING_ID}
+    Log To Console    First Found Booking ID: ${FIRST_FOUND_BOOKING_ID}
 
 Query Bookings by Firstname and lastname
     [Documentation]    Expect an Array of bookings, each with an Integer bookingid. Filter by firstname and lastname.
     GET         /booking?firstname\=Sally&lastname\=Brown       headers={"Cookie": "token=${TOKEN}"}
-
+    # Output
     Integer     response status                                 200
     Array       response body
     Integer     $[0].bookingid
@@ -82,39 +77,55 @@ Query Bookings by Firstname and lastname
 Query Bookings by checkin and checkout dates
     [Documentation]    Expect an Array of bookings, each with an Integer bookingid. Filter by checkin and checkout dates.
     GET         /booking?checkin\=2014-03-13&checkout\=2014-05-21        headers={"Cookie": "token=${TOKEN}"}
-
+    # Output
     Integer     response status                                 200
     Array       response body
     Object      $[?(@.bookingid\=\=${CREATED_BOOKING_ID})]
 
 Get Created Booking
     [Documentation]    Expect a booking with the created bookingid.
-    GET         /booking/${CREATED_BOOKING_ID}        headers={"Cookie": "token=${TOKEN}"}
+    GET         /booking/${CREATED_BOOKING_ID}        headers={"Cookie": "token=${TOKEN}", "Accept": "application/json"}
+    Output
     Integer     response status                                 200
-    Object      response body booking
-    Integer     response body booking bookingid                 ${CREATED_BOOKING_ID}
-    String      response body booking firstname                 Sally
-    String      response body booking lastname                  Brown
-    Integer     response body booking totalprice                111
-    Boolean     response body booking depositpaid               true
-    Object      response body booking bookingdates
-    String      response body booking bookingdates checkin      2014-03-13
-    String      response body booking bookingdates checkout     2014-05-21
-    String      response body booking additionalneeds           Breakfast
+    Object      response body
+    String      response body firstname                 Sally
+    String      response body lastname                  Brown
+    Integer     response body totalprice                111
+    Boolean     response body depositpaid               true
+    Object      response body bookingdates
+    String      response body bookingdates checkin      2014-03-13
+    String      response body bookingdates checkout     2014-05-21
+    String      response body additionalneeds           Breakfast
 
-# Due to 418 fail on creation, let us at least try to get the first found booking.
-# But it looks like this also deliberately fails with "I'm a Teapot" :(
+# If creation fails, let us at least try to get the first found booking.
 Get First Found Booking
     [Documentation]    Expect a booking with the first found bookingid.
-    GET         /booking/${FIRST_FOUND_BOOKING_ID}        headers={"Cookie": "token=${TOKEN}"}
+    GET         /booking/${FIRST_FOUND_BOOKING_ID}        headers={"Cookie": "token=${TOKEN}", "Accept": "application/json"}
     Integer     response status                                 200
-    Object      response body booking
-    Integer     response body booking bookingid                 ${FIRST_FOUND_BOOKING_ID}
-    String      response body booking firstname
-    String      response body booking lastname
-    Integer     response body booking totalprice
-    Boolean     response body booking depositpaid
-    Object      response body booking bookingdates
-    String      response body booking bookingdates checkin
-    String      response body booking bookingdates checkout
-    String      response body booking additionalneeds
+    Object      response body
+    String      response body firstname
+    String      response body lastname
+    Integer     response body totalprice
+    Boolean     response body depositpaid
+    Object      response body bookingdates
+    String      response body bookingdates checkin
+    String      response body bookingdates checkout
+    String      response body additionalneeds
+
+Update First Found Booking
+    [Documentation]    Expect a booking with the first found bookingid to be updated.
+    PUT         /booking/${FIRST_FOUND_BOOKING_ID}
+    ...         body={"firstname": "John", "lastname": "Doe", "totalprice": 222, "depositpaid": false, "bookingdates": {"checkin": "2024-01-01", "checkout": "2024-01-02"}, "additionalneeds": "Dinner"}
+    ...         headers={"Cookie": "token=${TOKEN}", "Content-Type": "application/json", "Accept": "application/json"}
+
+    Integer     response status                                 200
+
+    Object      response body
+    String      response body firstname                 John
+    String      response body lastname                  Doe
+    Integer     response body totalprice                222
+    Boolean     response body depositpaid               false
+    Object      response body bookingdates
+    String      response body bookingdates checkin      2024-01-01
+    String      response body bookingdates checkout     2024-01-02
+    String      response body additionalneeds           Dinner
