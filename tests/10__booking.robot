@@ -1,13 +1,9 @@
+# https://restful-booker.herokuapp.com/apidoc/
 # https://github.com/asyrjasalo/RESTinstance
 # https://asyrjasalo.github.io/RESTinstance
 
-# TODO: API URL should be configurable via env var or command line argument or external config file.
-# TODO: Same with credentials, plus file permission check, or prompting the user for them.
-
 
 *** Settings ***
-Library         OperatingSystem
-
 Library         REST    url=%{ROBOT_API_URL}
 
 Suite Setup     Authenticate and retrieve token
@@ -17,7 +13,20 @@ Suite Setup     Authenticate and retrieve token
 ${TOKEN}                    None
 ${CREATED_BOOKING_ID}       None
 ${FIRST_FOUND_BOOKING_ID}   None
-
+&{CREATED_BOOKINGDATES}     checkin=2014-03-13      checkout=2014-05-21
+&{UPDATED_BOOKINGDATES}     checkin=2024-01-01      checkout=2024-01-02
+&{CREATED_BOOKING}
+...                         firstname=Sally         lastname=Brown
+...                         totalprice=111
+...                         depositpaid=${True}
+...                         bookingdates=&{CREATED_BOOKINGDATES}
+...                         additionalneeds=Breakfast
+&{UPDATED_BOOKING}
+...                         firstname=John          lastname=Doe
+...                         totalprice=222
+...                         depositpaid=${False}
+...                         bookingdates=&{UPDATED_BOOKINGDATES}
+...                         additionalneeds=Dinner
 
 *** Keywords ***
 Authenticate and retrieve token
@@ -27,36 +36,38 @@ Authenticate and retrieve token
     Set Suite Variable  ${TOKEN}    ${token_value}
     ${masked_token}=    Evaluate    '*' * len('${token_value}')
     Log                 Token: ${masked_token}  console=True
+    Set Headers         {"Cookie": "token=${TOKEN}", "Content-Type": "application/json", "Accept": "application/json"}
 
 
 *** Test Cases ***
 Create a Booking
-    [Documentation]    Expect a booking to be created with a bookingid.
-    POST    /booking
-    ...    body={"firstname": "Sally", "lastname": "Brown", "totalprice": 111, "depositpaid": true, "bookingdates": {"checkin": "2014-03-13", "checkout": "2014-05-21"}, "additionalneeds": "Breakfast"}
-    ...    headers={"Cookie": "token=${TOKEN}", "Content-Type": "application/json", "Accept": "application/json"}
+    [Documentation]     Expect a booking to be created with a bookingid.
+    [Tags]              create  created
 
-    Integer     response status                                 200     201
+    POST    /booking    body=&{CREATED_BOOKING}
+
+    Integer     response status                                 200                     201
 
     Integer     response body bookingid
-    ${CREATED_BOOKING_ID}=    Output    $.bookingid
-    Set Suite Variable    ${CREATED_BOOKING_ID}    ${CREATED_BOOKING_ID}
-    Log To Console    Created Booking ID: ${CREATED_BOOKING_ID}
+    ${CREATED_BOOKING_ID}=      Output                          $.bookingid
+    Set Suite Variable          ${CREATED_BOOKING_ID}           ${CREATED_BOOKING_ID}
+    Log To Console              Created Booking ID: ${CREATED_BOOKING_ID}
 
     Object      response body booking
-    String      response body booking firstname                 Sally
-    String      response body booking lastname                  Brown
-    
-    Integer     response body booking totalprice                111
-    Boolean     response body booking depositpaid               true
+    String      response body booking firstname                 ${CREATED_BOOKING.firstname}
+    String      response body booking lastname                  ${CREATED_BOOKING.lastname}
+    Integer     response body booking totalprice                ${CREATED_BOOKING.totalprice}
+    Boolean     response body booking depositpaid               ${CREATED_BOOKING.depositpaid}
     Object      response body booking bookingdates
-    String      response body booking bookingdates checkin      2014-03-13
-    String      response body booking bookingdates checkout     2014-05-21
-    String      response body booking additionalneeds           Breakfast
+    String      response body booking bookingdates checkin      ${CREATED_BOOKING.bookingdates.checkin}
+    String      response body booking bookingdates checkout     ${CREATED_BOOKING.bookingdates.checkout}
+    String      response body booking additionalneeds           ${CREATED_BOOKING.additionalneeds}
 
 Get Bookings
     [Documentation]    Expect an Array of bookings, each with an Integer bookingid.
-    GET         /booking        headers={"Cookie": "token=${TOKEN}"}
+    [Tags]             get  get_all
+
+    GET         /booking
     Integer     response status                                 200
     Array       response body
     Integer     $[0].bookingid
@@ -66,7 +77,9 @@ Get Bookings
 
 Query Bookings by Firstname and lastname
     [Documentation]    Expect an Array of bookings, each with an Integer bookingid. Filter by firstname and lastname.
-    GET         /booking?firstname\=Sally&lastname\=Brown       headers={"Cookie": "token=${TOKEN}"}
+    [Tags]             get  query   filter
+
+    GET         /booking?firstname\=${CREATED_BOOKING.firstname}&lastname\=${CREATED_BOOKING.lastname}
     # Output
     Integer     response status                                 200
     Array       response body
@@ -75,7 +88,9 @@ Query Bookings by Firstname and lastname
 
 Query Bookings by checkin and checkout dates
     [Documentation]    Expect an Array of bookings, each with an Integer bookingid. Filter by checkin and checkout dates.
-    GET         /booking?checkin\=2014-03-13&checkout\=2014-05-21        headers={"Cookie": "token=${TOKEN}", "Accept": "application/json"}
+    [Tags]             get  query   filter
+
+    GET         /booking?checkin\=${CREATED_BOOKINGDATES.checkin}&checkout\=${CREATED_BOOKINGDATES.checkout}
     # Output
     Integer     response status                                 200
     Array       response body
@@ -83,23 +98,27 @@ Query Bookings by checkin and checkout dates
 
 Get Created Booking
     [Documentation]    Expect a booking with the created bookingid.
-    GET         /booking/${CREATED_BOOKING_ID}        headers={"Cookie": "token=${TOKEN}", "Accept": "application/json"}
+    [Tags]             get  created
+
+    GET         /booking/${CREATED_BOOKING_ID}
     # Output
-    Integer     response status                                 200
+    Integer     response status                         200
     Object      response body
-    String      response body firstname                 Sally
-    String      response body lastname                  Brown
-    Integer     response body totalprice                111
-    Boolean     response body depositpaid               true
+    String      response body firstname                 ${CREATED_BOOKING.firstname}
+    String      response body lastname                  ${CREATED_BOOKING.lastname}
+    Integer     response body totalprice                ${CREATED_BOOKING.totalprice}
+    Boolean     response body depositpaid               ${CREATED_BOOKING.depositpaid}
     Object      response body bookingdates
-    String      response body bookingdates checkin      2014-03-13
-    String      response body bookingdates checkout     2014-05-21
-    String      response body additionalneeds           Breakfast
+    String      response body bookingdates checkin      ${CREATED_BOOKING.bookingdates.checkin}
+    String      response body bookingdates checkout     ${CREATED_BOOKING.bookingdates.checkout}
+    String      response body additionalneeds           ${CREATED_BOOKING.additionalneeds}
 
 # If creation fails, let us at least try to get the first found booking.
 Get First Found Booking
     [Documentation]    Expect a booking with the first found bookingid.
-    GET         /booking/${FIRST_FOUND_BOOKING_ID}        headers={"Cookie": "token=${TOKEN}", "Accept": "application/json"}
+    [Tags]             get  first_found
+
+    GET         /booking/${FIRST_FOUND_BOOKING_ID}
     # Output
     Integer     response status                                 200
     Object      response body
@@ -114,48 +133,48 @@ Get First Found Booking
 
 Update First Found Booking
     [Documentation]    Expect a booking with the first found bookingid to be updated.
-    PUT         /booking/${FIRST_FOUND_BOOKING_ID}
-    ...         body={"firstname": "John", "lastname": "Doe", "totalprice": 222, "depositpaid": false, "bookingdates": {"checkin": "2024-01-01", "checkout": "2024-01-02"}, "additionalneeds": "Dinner"}
-    ...         headers={"Cookie": "token=${TOKEN}", "Content-Type": "application/json", "Accept": "application/json"}
+    [Tags]             update  first_found
 
-    
+    PUT         /booking/${FIRST_FOUND_BOOKING_ID}      body=&{UPDATED_BOOKING}
 
     Integer     response status                         200
 
     Object      response body
-    String      response body firstname                 John
-    String      response body lastname                  Doe
-    Integer     response body totalprice                222
-    Boolean     response body depositpaid               false
+    String      response body firstname                 ${UPDATED_BOOKING.firstname}
+    String      response body lastname                  ${UPDATED_BOOKING.lastname}
+    Integer     response body totalprice                ${UPDATED_BOOKING.totalprice}
+    Boolean     response body depositpaid               ${UPDATED_BOOKING.depositpaid}
     Object      response body bookingdates
-    String      response body bookingdates checkin      2024-01-01
-    String      response body bookingdates checkout     2024-01-02
-    String      response body additionalneeds           Dinner
+    String      response body bookingdates checkin      ${UPDATED_BOOKING.bookingdates.checkin}
+    String      response body bookingdates checkout     ${UPDATED_BOOKING.bookingdates.checkout}
+    String      response body additionalneeds           ${UPDATED_BOOKING.additionalneeds}
 
 Partial Update First Found Booking
     [Documentation]    Expect a booking with the first found bookingid to be updated partially.
-    PATCH         /booking/${FIRST_FOUND_BOOKING_ID}
-    ...         body={"additionalneeds": "Twin Beds"}
-    ...         headers={"Cookie": "token=${TOKEN}", "Content-Type": "application/json", "Accept": "application/json"}
+    [Tags]             patch  first_found
+
+    PATCH         /booking/${FIRST_FOUND_BOOKING_ID}    body={"additionalneeds": "Twin Beds"}
 
     Integer     response status                         200
 
     Object      response body
-    String      response body firstname                 John
-    String      response body lastname                  Doe
-    Integer     response body totalprice                222
-    Boolean     response body depositpaid               false
+    String      response body firstname                 ${UPDATED_BOOKING.firstname}
+    String      response body lastname                  ${UPDATED_BOOKING.lastname}
+    Integer     response body totalprice                ${UPDATED_BOOKING.totalprice}
+    Boolean     response body depositpaid               ${UPDATED_BOOKING.depositpaid}
     Object      response body bookingdates
-    String      response body bookingdates checkin      2024-01-01
-    String      response body bookingdates checkout     2024-01-02
+    String      response body bookingdates checkin      ${UPDATED_BOOKING.bookingdates.checkin}
+    String      response body bookingdates checkout     ${UPDATED_BOOKING.bookingdates.checkout}
     String      response body additionalneeds           Twin Beds
 
 Delete Created Booking
     [Documentation]    Expect the created booking to be deleted.
-    DELETE      /booking/${CREATED_BOOKING_ID}        headers={"Cookie": "token=${TOKEN}", "Accept": "application/json"}
+    [Tags]             delete  created
+
+    DELETE      /booking/${CREATED_BOOKING_ID}
 
     Integer     response status                         201
 
     # Verify that the booking is deleted.
-    GET         /booking/${CREATED_BOOKING_ID}        headers={"Cookie": "token=${TOKEN}", "Accept": "application/json"}
+    GET         /booking/${CREATED_BOOKING_ID}
     Integer     response status                         404
