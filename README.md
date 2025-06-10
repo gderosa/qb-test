@@ -18,7 +18,7 @@ pip install --upgrade -r requirements.txt
 robot --output-dir results tests
 ```
 
-Reports of test results and failiures (bugs) are in HTML and XML format in the `results` directory.
+Reports of test results and failiures (bugs) are in HTML and XML format in the `results/` directory.
 
 ### Question
 Is HTML acceptable as a format for the results and "bug report"? Is Excel a requirement?
