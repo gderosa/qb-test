@@ -2,7 +2,7 @@
 # https://asyrjasalo.github.io/RESTinstance
 
 *** Settings ***
-Library         REST    url=https://restful-booker.herokuapp.com/
+Library         REST    url=%{ROBOT_API_URL}
 
 *** Test Cases ***
 Health Check
