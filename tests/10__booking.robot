@@ -4,8 +4,11 @@
 # TODO: API URL should be configurable via env var or command line argument or external config file.
 # TODO: Same with credentials, plus file permission check, or prompting the user for them.
 
+
 *** Settings ***
 Library         REST    url=https://restful-booker.herokuapp.com/
+Suite Setup     Authenticate and retrieve token
+
 
 *** Variables ***
 ${USERNAME}                 admin
@@ -14,13 +17,17 @@ ${TOKEN}                    None
 ${CREATED_BOOKING_ID}       None
 ${FIRST_FOUND_BOOKING_ID}   None
 
-*** Test Cases ***
+
+*** Keywords ***
 Authenticate and retrieve token
+    [Documentation]    Authenticate with the API and retrieve a token for subsequent requests.
     POST    /auth    body={"username": "${USERNAME}", "password": "${PASSWORD}"}
-
-    ${token_value}=     Output      $.token
+    ${token_value}=     Output      $.token     also_console=${False}
     Set Suite Variable  ${TOKEN}    ${token_value}
+    Log To Console       Token: ${TOKEN}
 
+
+*** Test Cases ***
 Create a Booking
     [Documentation]    Expect a booking to be created with a bookingid.
     POST    /booking
