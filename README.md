@@ -21,7 +21,8 @@ pip install --upgrade -r requirements.txt
 cp example.settings.sh settings.sh
 chmod go-rwx settings.sh
 # edit settings.sh with credentials and URL...
-./run.sh
+./robot.sh --output-dir results tests
+# passes all the command line args to the `robot` command, so feel free to customize
 ```
 
 ### GitHub Action
