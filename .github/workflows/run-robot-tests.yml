@@ -1,8 +1,9 @@
 name: Run Robot Framework Tests
 
 on:
+  workflow_dispatch:        # Manual trigger via GitHub UI
   schedule:
-    - cron: '0 9 * * 1-5'  # Runs at 09:00 UTC every Mon-Fri
+    - cron: '0 9 * * 1-5'   # Runs at 09:00 UTC every Mon-Fri
 
 jobs:
   robot-tests:
