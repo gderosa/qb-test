@@ -42,11 +42,9 @@ You have to set, for the `staging` environment:
 
 Reports of test results and failiures (bugs) are in HTML and XML format in the `results/` directory.
 
-#### Question
-Is HTML acceptable as a format for the results and "bug report"? Is Excel a requirement?
-
 ## TODOs / Known limitations
-* Formats other than JSON
+* RESTInstance is JSON-centric, no support for other formats, it even warns when a different Content-Type received
 * DRY test cases, create custom keywords
+* Is HTML acceptable as a format for the results and "bug report"? Is Excel a requirement?
 
 
