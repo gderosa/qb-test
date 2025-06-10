@@ -6,13 +6,14 @@
 
 
 *** Settings ***
+Library         OperatingSystem
+
 Library         REST    url=https://restful-booker.herokuapp.com/
+
 Suite Setup     Authenticate and retrieve token
 
 
 *** Variables ***
-${USERNAME}                 admin
-${PASSWORD}                 password123
 ${TOKEN}                    None
 ${CREATED_BOOKING_ID}       None
 ${FIRST_FOUND_BOOKING_ID}   None
@@ -21,6 +22,8 @@ ${FIRST_FOUND_BOOKING_ID}   None
 *** Keywords ***
 Authenticate and retrieve token
     [Documentation]    Authenticate with the API and retrieve a token for subsequent requests.
+    ${USERNAME}=    Get Environment Variable    ROBOT_API_USERNAME
+    ${PASSWORD}=    Get Environment Variable    ROBOT_API_PASSWORD
     POST    /auth    body={"username": "${USERNAME}", "password": "${PASSWORD}"}
     ${token_value}=     Output      $.token     also_console=${False}
     Set Suite Variable  ${TOKEN}    ${token_value}

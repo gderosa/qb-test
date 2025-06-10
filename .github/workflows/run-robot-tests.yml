@@ -23,6 +23,9 @@ jobs:
         pip install -r requirements.txt
 
     - name: Run Robot Framework tests
+      env:
+        ROBOT_API_USERNAME: ${{ secrets.STAGING_USERNAME }}
+        ROBOT_API_PASSWORD: ${{ secrets.STAGING_PASSWORD }}
       run: |
         robot tests/
 
