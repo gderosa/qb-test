@@ -1,8 +1,6 @@
+# https://restful-booker.herokuapp.com/apidoc/
 # https://github.com/asyrjasalo/RESTinstance
 # https://asyrjasalo.github.io/RESTinstance
-
-# TODO: API URL should be configurable via env var or command line argument or external config file.
-# TODO: Same with credentials, plus file permission check, or prompting the user for them.
 
 
 *** Settings ***
@@ -81,7 +79,7 @@ Query Bookings by Firstname and lastname
     [Documentation]    Expect an Array of bookings, each with an Integer bookingid. Filter by firstname and lastname.
     [Tags]             get  query   filter
 
-    GET         /booking?firstname\=Sally&lastname\=Brown
+    GET         /booking?firstname\=${CREATED_BOOKING.firstname}&lastname\=${CREATED_BOOKING.lastname}
     # Output
     Integer     response status                                 200
     Array       response body
@@ -92,7 +90,7 @@ Query Bookings by checkin and checkout dates
     [Documentation]    Expect an Array of bookings, each with an Integer bookingid. Filter by checkin and checkout dates.
     [Tags]             get  query   filter
 
-    GET         /booking?checkin\=2014-03-13&checkout\=2014-05-21
+    GET         /booking?checkin\=${CREATED_BOOKINGDATES.checkin}&checkout\=${CREATED_BOOKINGDATES.checkout}
     # Output
     Integer     response status                                 200
     Array       response body
