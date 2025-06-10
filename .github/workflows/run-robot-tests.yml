@@ -8,7 +8,10 @@ on:
 jobs:
   robot-tests:
     runs-on: ubuntu-latest
-
+    environment: staging
+    env:
+      ROBOT_API_USERNAME: ${{ secrets.STAGING_USERNAME }}
+      ROBOT_API_PASSWORD: ${{ secrets.STAGING_PASSWORD }}    
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
@@ -23,9 +26,6 @@ jobs:
         pip install -r requirements.txt
 
     - name: Run Robot Framework tests
-      env:
-        ROBOT_API_USERNAME: ${{ secrets.STAGING_USERNAME }}
-        ROBOT_API_PASSWORD: ${{ secrets.STAGING_PASSWORD }}
       run: |
         robot tests/
 
