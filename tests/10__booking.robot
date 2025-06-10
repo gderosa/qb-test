@@ -7,6 +7,7 @@
 
 *** Settings ***
 Library         REST    url=%{ROBOT_API_URL}
+
 Suite Setup     Authenticate and retrieve token
 
 
@@ -16,8 +17,7 @@ ${CREATED_BOOKING_ID}       None
 ${FIRST_FOUND_BOOKING_ID}   None
 &{CREATED_BOOKINGDATES}     checkin=2014-03-13    checkout=2014-05-21
 &{CREATED_BOOKING}
-...                         firstname=Sally
-...                         lastname=Brown
+...                         firstname=Sally       lastname=Brown
 ...                         totalprice=111
 ...                         depositpaid=${True}
 ...                         bookingdates=&{CREATED_BOOKINGDATES}
@@ -32,14 +32,13 @@ Authenticate and retrieve token
     Set Suite Variable  ${TOKEN}    ${token_value}
     ${masked_token}=    Evaluate    '*' * len('${token_value}')
     Log                 Token: ${masked_token}  console=True
+    Set Headers         {"Cookie": "token=${TOKEN}", "Content-Type": "application/json", "Accept": "application/json"}
 
 
 *** Test Cases ***
 Create a Booking
     [Documentation]    Expect a booking to be created with a bookingid.
-    POST    /booking
-    ...    body=&{CREATED_BOOKING}
-    ...    headers={"Cookie": "token=${TOKEN}", "Content-Type": "application/json", "Accept": "application/json"}
+    POST    /booking    body=&{CREATED_BOOKING}
 
     Integer     response status                                 200     201
 
@@ -61,7 +60,7 @@ Create a Booking
 
 Get Bookings
     [Documentation]    Expect an Array of bookings, each with an Integer bookingid.
-    GET         /booking        headers={"Cookie": "token=${TOKEN}"}
+    GET         /booking
     Integer     response status                                 200
     Array       response body
     Integer     $[0].bookingid
@@ -71,7 +70,7 @@ Get Bookings
 
 Query Bookings by Firstname and lastname
     [Documentation]    Expect an Array of bookings, each with an Integer bookingid. Filter by firstname and lastname.
-    GET         /booking?firstname\=Sally&lastname\=Brown       headers={"Cookie": "token=${TOKEN}"}
+    GET         /booking?firstname\=Sally&lastname\=Brown
     # Output
     Integer     response status                                 200
     Array       response body
@@ -80,7 +79,7 @@ Query Bookings by Firstname and lastname
 
 Query Bookings by checkin and checkout dates
     [Documentation]    Expect an Array of bookings, each with an Integer bookingid. Filter by checkin and checkout dates.
-    GET         /booking?checkin\=2014-03-13&checkout\=2014-05-21        headers={"Cookie": "token=${TOKEN}", "Accept": "application/json"}
+    GET         /booking?checkin\=2014-03-13&checkout\=2014-05-21
     # Output
     Integer     response status                                 200
     Array       response body
@@ -88,7 +87,7 @@ Query Bookings by checkin and checkout dates
 
 Get Created Booking
     [Documentation]    Expect a booking with the created bookingid.
-    GET         /booking/${CREATED_BOOKING_ID}        headers={"Cookie": "token=${TOKEN}", "Accept": "application/json"}
+    GET         /booking/${CREATED_BOOKING_ID}
     # Output
     Integer     response status                                 200
     Object      response body
@@ -104,7 +103,7 @@ Get Created Booking
 # If creation fails, let us at least try to get the first found booking.
 Get First Found Booking
     [Documentation]    Expect a booking with the first found bookingid.
-    GET         /booking/${FIRST_FOUND_BOOKING_ID}        headers={"Cookie": "token=${TOKEN}", "Accept": "application/json"}
+    GET         /booking/${FIRST_FOUND_BOOKING_ID}
     # Output
     Integer     response status                                 200
     Object      response body
@@ -121,9 +120,6 @@ Update First Found Booking
     [Documentation]    Expect a booking with the first found bookingid to be updated.
     PUT         /booking/${FIRST_FOUND_BOOKING_ID}
     ...         body={"firstname": "John", "lastname": "Doe", "totalprice": 222, "depositpaid": false, "bookingdates": {"checkin": "2024-01-01", "checkout": "2024-01-02"}, "additionalneeds": "Dinner"}
-    ...         headers={"Cookie": "token=${TOKEN}", "Content-Type": "application/json", "Accept": "application/json"}
-
-    
 
     Integer     response status                         200
 
@@ -141,7 +137,6 @@ Partial Update First Found Booking
     [Documentation]    Expect a booking with the first found bookingid to be updated partially.
     PATCH         /booking/${FIRST_FOUND_BOOKING_ID}
     ...         body={"additionalneeds": "Twin Beds"}
-    ...         headers={"Cookie": "token=${TOKEN}", "Content-Type": "application/json", "Accept": "application/json"}
 
     Integer     response status                         200
 
@@ -157,10 +152,10 @@ Partial Update First Found Booking
 
 Delete Created Booking
     [Documentation]    Expect the created booking to be deleted.
-    DELETE      /booking/${CREATED_BOOKING_ID}        headers={"Cookie": "token=${TOKEN}", "Accept": "application/json"}
+    DELETE      /booking/${CREATED_BOOKING_ID}
 
     Integer     response status                         201
 
     # Verify that the booking is deleted.
-    GET         /booking/${CREATED_BOOKING_ID}        headers={"Cookie": "token=${TOKEN}", "Accept": "application/json"}
+    GET         /booking/${CREATED_BOOKING_ID}
     Integer     response status                         404
