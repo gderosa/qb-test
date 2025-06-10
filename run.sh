@@ -1,6 +1,6 @@
 #!/bin/sh
 
-source ./settings.sh
+. ./settings.sh
 
 robot --output-dir results tests/
 
