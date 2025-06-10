@@ -26,4 +26,5 @@ Is HTML acceptable as a format for the results and "bug report"? Is Excel a requ
 ## TODOs / Known limitations
 * Formats other than JSON
 * DRY test cases, create custom keywords
+* Hardcoding
 
