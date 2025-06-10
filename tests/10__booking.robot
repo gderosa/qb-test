@@ -15,14 +15,20 @@ Suite Setup     Authenticate and retrieve token
 ${TOKEN}                    None
 ${CREATED_BOOKING_ID}       None
 ${FIRST_FOUND_BOOKING_ID}   None
-&{CREATED_BOOKINGDATES}     checkin=2014-03-13    checkout=2014-05-21
+&{CREATED_BOOKINGDATES}     checkin=2014-03-13      checkout=2014-05-21
+&{UPDATED_BOOKINGDATES}     checkin=2024-01-01      checkout=2024-01-02
 &{CREATED_BOOKING}
-...                         firstname=Sally       lastname=Brown
+...                         firstname=Sally         lastname=Brown
 ...                         totalprice=111
 ...                         depositpaid=${True}
 ...                         bookingdates=&{CREATED_BOOKINGDATES}
 ...                         additionalneeds=Breakfast
-
+&{UPDATED_BOOKING}
+...                         firstname=John          lastname=Doe
+...                         totalprice=222
+...                         depositpaid=${False}
+...                         bookingdates=&{UPDATED_BOOKINGDATES}
+...                         additionalneeds=Dinner
 
 *** Keywords ***
 Authenticate and retrieve token
@@ -118,8 +124,7 @@ Get First Found Booking
 
 Update First Found Booking
     [Documentation]    Expect a booking with the first found bookingid to be updated.
-    PUT         /booking/${FIRST_FOUND_BOOKING_ID}
-    ...         body={"firstname": "John", "lastname": "Doe", "totalprice": 222, "depositpaid": false, "bookingdates": {"checkin": "2024-01-01", "checkout": "2024-01-02"}, "additionalneeds": "Dinner"}
+    PUT         /booking/${FIRST_FOUND_BOOKING_ID}      body=&{UPDATED_BOOKING}
 
     Integer     response status                         200
 
@@ -135,8 +140,7 @@ Update First Found Booking
 
 Partial Update First Found Booking
     [Documentation]    Expect a booking with the first found bookingid to be updated partially.
-    PATCH         /booking/${FIRST_FOUND_BOOKING_ID}
-    ...         body={"additionalneeds": "Twin Beds"}
+    PATCH         /booking/${FIRST_FOUND_BOOKING_ID}    body={"additionalneeds": "Twin Beds"}
 
     Integer     response status                         200
 
