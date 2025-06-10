@@ -8,7 +8,11 @@ on:
 jobs:
   robot-tests:
     runs-on: ubuntu-latest
-
+    environment: staging
+    env:
+      ROBOT_API_URL:      ${{ vars.STAGING_URL }}
+      ROBOT_API_USERNAME: ${{ secrets.STAGING_USERNAME }}
+      ROBOT_API_PASSWORD: ${{ secrets.STAGING_PASSWORD }}    
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
