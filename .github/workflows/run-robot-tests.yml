@@ -1,0 +1,35 @@
+name: Run Robot Framework Tests
+
+on:
+  schedule:
+    - cron: '0 9 * * 1-5'  # Runs at 09:00 UTC every Mon-Fri
+
+jobs:
+  robot-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+
+    - name: Run Robot Framework tests
+      run: |
+        robot tests/
+
+    - name: Upload Robot Framework report
+      uses: actions/upload-artifact@v4
+      with:
+        name: robot-report
+        path: |
+          log.html
+          report.html
+          output.xml
