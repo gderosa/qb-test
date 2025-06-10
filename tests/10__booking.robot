@@ -6,10 +6,7 @@
 
 
 *** Settings ***
-Library         OperatingSystem
-
 Library         REST    url=%{ROBOT_API_URL}
-
 Suite Setup     Authenticate and retrieve token
 
 
@@ -17,6 +14,14 @@ Suite Setup     Authenticate and retrieve token
 ${TOKEN}                    None
 ${CREATED_BOOKING_ID}       None
 ${FIRST_FOUND_BOOKING_ID}   None
+&{CREATED_BOOKINGDATES}     checkin=2014-03-13    checkout=2014-05-21
+&{CREATED_BOOKING}
+...                         firstname=Sally
+...                         lastname=Brown
+...                         totalprice=111
+...                         depositpaid=${True}
+...                         bookingdates=&{CREATED_BOOKINGDATES}
+...                         additionalneeds=Breakfast
 
 
 *** Keywords ***
@@ -33,7 +38,7 @@ Authenticate and retrieve token
 Create a Booking
     [Documentation]    Expect a booking to be created with a bookingid.
     POST    /booking
-    ...    body={"firstname": "Sally", "lastname": "Brown", "totalprice": 111, "depositpaid": true, "bookingdates": {"checkin": "2014-03-13", "checkout": "2014-05-21"}, "additionalneeds": "Breakfast"}
+    ...    body=&{CREATED_BOOKING}
     ...    headers={"Cookie": "token=${TOKEN}", "Content-Type": "application/json", "Accept": "application/json"}
 
     Integer     response status                                 200     201
