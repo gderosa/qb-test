@@ -2,5 +2,7 @@
 
 . ./settings.sh
 
+export ROBOT_API_URL ROBOT_API_USERNAME ROBOT_API_PASSWORD
+
 robot "$@"
 
