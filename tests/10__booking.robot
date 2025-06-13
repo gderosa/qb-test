@@ -4,8 +4,8 @@
 
 
 *** Settings ***
-Library         REST    url=%{ROBOT_API_URL}
 Library         Collections
+Library         REST    url=%{ROBOT_API_URL}
 
 Suite Setup     Authenticate and retrieve token
 
