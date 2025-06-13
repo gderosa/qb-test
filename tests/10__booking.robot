@@ -51,6 +51,18 @@ Verify Booking Response
     String          ${booking} bookingdates checkout    ${expected.bookingdates.checkout}
     String          ${booking} additionalneeds          ${expected.additionalneeds}
 
+Verify Booking Schema Only
+    [Arguments]     ${booking}
+    Object          ${booking}
+    String          ${booking} firstname
+    String          ${booking} lastname
+    Integer         ${booking} totalprice
+    Boolean         ${booking} depositpaid
+    Object          ${booking} bookingdates
+    String          ${booking} bookingdates checkin
+    String          ${booking} bookingdates checkout
+    String          ${booking} additionalneeds
+
 
 *** Test Cases ***
 Create a Booking
@@ -115,18 +127,9 @@ Get First Found Booking
     [Documentation]    Expect a booking with the first found bookingid.
     [Tags]             get  first_found
 
-    GET         /booking/${FIRST_FOUND_BOOKING_ID}
-    # Output
-    Integer     response status                                 200
-    Object      response body
-    String      response body firstname
-    String      response body lastname
-    Integer     response body totalprice
-    Boolean     response body depositpaid
-    Object      response body bookingdates
-    String      response body bookingdates checkin
-    String      response body bookingdates checkout
-    String      response body additionalneeds
+    GET                         /booking/${FIRST_FOUND_BOOKING_ID}
+    Integer                     response status         200
+    Verify Booking Schema Only  response body
 
 Update First Found Booking
     [Documentation]    Expect a booking with the first found bookingid to be updated.
