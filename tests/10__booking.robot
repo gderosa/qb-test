@@ -12,7 +12,6 @@ Suite Setup     Authenticate and retrieve token
 
 *** Variables ***
 ${TOKEN}                    None
-${CREATED_BOOKING_ID}       None
 ${FIRST_FOUND_BOOKING_ID}   None
 &{CREATED_BOOKINGDATES}     checkin=2014-03-13      checkout=2014-05-21
 &{UPDATED_BOOKINGDATES}     checkin=2024-01-01      checkout=2024-01-02
@@ -63,19 +62,59 @@ Verify Booking Schema Only
     String          ${booking} bookingdates checkout
     String          ${booking} additionalneeds
 
+Create Booking
+    [Documentation]    Create a booking with the given details.
+    [Arguments]
+
+    POST                        /booking                                body=&{CREATED_BOOKING}
+    Integer                     response status                         200     201
+    Integer                     response body bookingid
+    ${bookingid}=               Output                                  $.bookingid
+    Set Test Variable           ${CREATED_BOOKING_ID}                   ${bookingid}
+    Verify Booking Response     response body booking                   ${CREATED_BOOKING}
+
+Verify Created Booking
+    [Documentation]             Verify that the created booking matches the expected details.
+    [Arguments]
+
+    GET                         /booking/${CREATED_BOOKING_ID}
+    Integer                     response status                         200
+    Verify Booking Response     response body                           ${CREATED_BOOKING}
+
+Find Created Booking By Name
+    [Documentation]             Find a booking by firstname and lastname.
+    GET                 /booking?firstname\=${CREATED_BOOKING.firstname}&lastname\=${CREATED_BOOKING.lastname}
+    Integer             response status                                 200
+    Array               response body
+    Integer             $[0].bookingid
+    Object              $[?(@.bookingid\=\=${CREATED_BOOKING_ID})]
+
+Find Created Booking By Dates
+    [Documentation]             Find a booking by checkin and checkout dates.
+    GET                 /booking?checkin\=${CREATED_BOOKINGDATES.checkin}&checkout\=${CREATED_BOOKINGDATES.checkout}
+    Integer             response status                                 200
+    Array               response body
+    Object              $[?(@.bookingid\=\=${CREATED_BOOKING_ID})]
+
+Delete Created Booking
+    [Documentation]             Delete a booking with the given bookingid.
+    [Arguments]                 
+
+    DELETE                      /booking/${CREATED_BOOKING_ID}
+    Integer                     response status                         201     # Per Documentation
+
+    GET                         /booking/${CREATED_BOOKING_ID}
+    Integer                     response status                         404     # Not Found
+
 
 *** Test Cases ***
 Create a Booking
     [Documentation]             Expect a booking to be created with a bookingid.
     [Tags]                      create  created
 
-    POST                        /booking                                body=&{CREATED_BOOKING}
-    Integer                     response status                         200     201
-    Integer                     response body bookingid
-    ${CREATED_BOOKING_ID}=      Output                                  $.bookingid
-    Set Suite Variable          ${CREATED_BOOKING_ID}                   ${CREATED_BOOKING_ID}
-    Log To Console              Created Booking ID: ${CREATED_BOOKING_ID}
-    Verify Booking Response     response body booking                   ${CREATED_BOOKING}
+    Create Booking
+
+    [Teardown]                  Delete Created Booking
 
 Get Bookings
     [Documentation]    Expect an Array of bookings, each with an Integer bookingid.
@@ -86,38 +125,35 @@ Get Bookings
     Array                       response body
     Integer                     $[0].bookingid
     ${FIRST_FOUND_BOOKING_ID}=    Output                                $[0].bookingid
-    Set Suite Variable  ${FIRST_FOUND_BOOKING_ID}                       ${FIRST_FOUND_BOOKING_ID}
-    Log To Console      First Found Booking ID: ${FIRST_FOUND_BOOKING_ID}
+    Set Suite Variable          ${FIRST_FOUND_BOOKING_ID}               ${FIRST_FOUND_BOOKING_ID}
+    Log                         First Found Booking ID: ${FIRST_FOUND_BOOKING_ID}   console=True
 
 Query Bookings by Firstname and lastname
     [Documentation]     Expect an Array of bookings, each with an Integer bookingid. Filter by firstname and lastname.
     [Tags]              get  query   filter
+    [Setup]             Create Booking
 
-    GET                 /booking?firstname\=${CREATED_BOOKING.firstname}&lastname\=${CREATED_BOOKING.lastname}
-    # Output
-    Integer             response status                                 200
-    Array               response body
-    Integer             $[0].bookingid
-    Object              $[?(@.bookingid\=\=${CREATED_BOOKING_ID})]
+    Find Created Booking By Name
+
+    [Teardown]          Delete Created Booking
 
 Query Bookings by checkin and checkout dates
     [Documentation]    Expect an Array of bookings, each with an Integer bookingid. Filter by checkin and checkout dates.
     [Tags]             get  query   filter
+    [Setup]            Create Booking
 
-    GET         /booking?checkin\=${CREATED_BOOKINGDATES.checkin}&checkout\=${CREATED_BOOKINGDATES.checkout}
-    # Output
-    Integer     response status                                         200
-    Array       response body
-    Object      $[?(@.bookingid\=\=${CREATED_BOOKING_ID})]
+    Find Created Booking By Dates
+
+    [Teardown]         Delete Created Booking
 
 Get Created Booking
     [Documentation]             Expect a booking with the created bookingid.
     [Tags]                      get  created
+    [Setup]                     Create Booking
 
-    GET                         /booking/${CREATED_BOOKING_ID}
-    Integer                     response status                         200
-    Verify Booking Response     response body                           ${CREATED_BOOKING}
+    Verify Created Booking
 
+    [Teardown]                  Delete Created Booking
 
 # If creation fails, let us at least try to get the first found booking.
 Get First Found Booking
