@@ -5,7 +5,7 @@
 
 *** Settings ***
 Library         REST    url=%{ROBOT_API_URL}
-Library    ../.venv/lib/python3.13/site-packages/robot/libraries/Collections.py
+Library         Collections
 
 Suite Setup     Authenticate and retrieve token
 
