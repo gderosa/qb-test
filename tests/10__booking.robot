@@ -12,7 +12,6 @@ Suite Setup     Authenticate and retrieve token
 
 *** Variables ***
 ${TOKEN}                    None
-${FIRST_FOUND_BOOKING_ID}   None
 &{CREATED_BOOKINGDATES}     checkin=2014-03-13      checkout=2014-05-21
 &{UPDATED_BOOKINGDATES}     checkin=2024-01-01      checkout=2024-01-02
 &{CREATED_BOOKING}
@@ -98,7 +97,7 @@ Find Created Booking By Dates
 
 Delete Created Booking
     [Documentation]             Delete a booking with the given bookingid.
-    [Arguments]                 
+    [Arguments]
 
     DELETE                      /booking/${CREATED_BOOKING_ID}
     Integer                     response status                         201     # Per Documentation
@@ -106,6 +105,15 @@ Delete Created Booking
     GET                         /booking/${CREATED_BOOKING_ID}
     Integer                     response status                         404     # Not Found
 
+Get All Bookings
+    [Documentation]             Retrieve all bookings.
+    GET                         /booking
+    Integer                     response status                         200
+    Array                       response body
+    Integer                     $[0].bookingid
+    ${FIRST_FOUND_BOOKING_ID}=    Output                                $[0].bookingid
+    Set Test Variable           ${FIRST_FOUND_BOOKING_ID}               ${FIRST_FOUND_BOOKING_ID}
+    Log                         First Found Booking ID: ${FIRST_FOUND_BOOKING_ID}   console=True
 
 *** Test Cases ***
 Create a Booking
@@ -120,14 +128,9 @@ Get Bookings
     [Documentation]    Expect an Array of bookings, each with an Integer bookingid.
     [Tags]                      get  get_all
 
-    GET                         /booking
-    Integer                     response status                         200
-    Array                       response body
-    Integer                     $[0].bookingid
-    ${FIRST_FOUND_BOOKING_ID}=    Output                                $[0].bookingid
-    Set Suite Variable          ${FIRST_FOUND_BOOKING_ID}               ${FIRST_FOUND_BOOKING_ID}
-    Log                         First Found Booking ID: ${FIRST_FOUND_BOOKING_ID}   console=True
+    Get All Bookings
 
+    
 Query Bookings by Firstname and lastname
     [Documentation]     Expect an Array of bookings, each with an Integer bookingid. Filter by firstname and lastname.
     [Tags]              get  query   filter
@@ -157,9 +160,9 @@ Get Created Booking
 
 # If creation fails, let us at least try to get the first found booking.
 Get First Found Booking
-    [Documentation]    Expect a booking with the first found bookingid.
-    [Tags]             get  first_found
-
+    [Documentation]             Expect a booking with the first found bookingid.
+    [Tags]                      get  first_found
+    [Setup]                     Get All Bookings
     GET                         /booking/${FIRST_FOUND_BOOKING_ID}
     Integer                     response status                         200
     Verify Booking Schema Only  response body
@@ -167,7 +170,7 @@ Get First Found Booking
 Update First Found Booking
     [Documentation]             Expect a booking with the first found bookingid to be updated.
     [Tags]                      update  first_found
-
+    [Setup]                     Get All Bookings
     PUT                         /booking/${FIRST_FOUND_BOOKING_ID}      body=&{UPDATED_BOOKING}
     Integer                     response status                         200
     Verify Booking Response     response body                           ${UPDATED_BOOKING}
@@ -175,7 +178,7 @@ Update First Found Booking
 Partial Update First Found Booking
     [Documentation]             Expect a booking with the first found bookingid to be updated partially.
     [Tags]                      patch   first_found
-
+    [Setup]                     Get All Bookings
     &{changes}=                 Create Dictionary                       additionalneeds=Twin Beds
     &{PARTIALLY_UPDATED_BOOKING}=   Copy Dictionary                     ${UPDATED_BOOKING}
     Set To Dictionary           ${PARTIALLY_UPDATED_BOOKING}            &{changes}
@@ -187,7 +190,7 @@ Partial Update First Found Booking
 Delete Created Booking
     [Documentation]             Expect the created booking to be deleted.
     [Tags]                      delete  created
-
+    [Setup]                     Create Booking
     DELETE                      /booking/${CREATED_BOOKING_ID}
     Integer                     response status                         201     # Per Documentation
     
