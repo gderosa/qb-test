@@ -7,7 +7,7 @@ Library         REST    url=%{ROBOT_API_URL}
 
 
 *** Variables ***
-${TOKEN}                    None
+${TOKEN}        None
 
 
 *** Keywords ***
