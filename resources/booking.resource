@@ -7,36 +7,21 @@
 Library         Collections
 Library         REST    url=%{ROBOT_API_URL}
 
-
-*** Variables ***
-&{CREATED_BOOKINGDATES}     checkin=2014-03-13      checkout=2014-05-21
-&{UPDATED_BOOKINGDATES}     checkin=2024-01-01      checkout=2024-01-02
-&{CREATED_BOOKING}
-...                         firstname=Sally         lastname=Brown
-...                         totalprice=111
-...                         depositpaid=${True}
-...                         bookingdates=&{CREATED_BOOKINGDATES}
-...                         additionalneeds=Breakfast
-&{UPDATED_BOOKING}
-...                         firstname=John          lastname=Doe
-...                         totalprice=222
-...                         depositpaid=${False}
-...                         bookingdates=&{UPDATED_BOOKINGDATES}
-...                         additionalneeds=Dinner
+Variables       ../data/booking.py
 
 
 *** Keywords ***
 Verify Booking Response
     [Arguments]     ${booking}                          ${expected}
     Object          ${booking}
-    String          ${booking} firstname                ${expected.firstname}
-    String          ${booking} lastname                 ${expected.lastname}
-    Integer         ${booking} totalprice               ${expected.totalprice}
-    Boolean         ${booking} depositpaid              ${expected.depositpaid}
+    String          ${booking} firstname                ${expected['firstname']}
+    String          ${booking} lastname                 ${expected['lastname']}
+    Integer         ${booking} totalprice               ${expected['totalprice']}
+    Boolean         ${booking} depositpaid              ${expected['depositpaid']}
     Object          ${booking} bookingdates
-    String          ${booking} bookingdates checkin     ${expected.bookingdates.checkin}
-    String          ${booking} bookingdates checkout    ${expected.bookingdates.checkout}
-    String          ${booking} additionalneeds          ${expected.additionalneeds}
+    String          ${booking} bookingdates checkin     ${expected['bookingdates']['checkin']}
+    String          ${booking} bookingdates checkout    ${expected['bookingdates']['checkout']}
+    String          ${booking} additionalneeds          ${expected['additionalneeds']}
 
 Verify Booking Schema Only
     [Arguments]     ${booking}
@@ -71,7 +56,7 @@ Verify Created Booking
 
 Find Created Booking By Name
     [Documentation]             Find a booking by firstname and lastname.
-    GET                 /booking?firstname\=${CREATED_BOOKING.firstname}&lastname\=${CREATED_BOOKING.lastname}
+    GET                 /booking?firstname\=${CREATED_BOOKING['firstname']}&lastname\=${CREATED_BOOKING['lastname']}
     Integer             response status                                 200
     Array               response body
     Integer             $[0].bookingid
@@ -79,7 +64,7 @@ Find Created Booking By Name
 
 Find Created Booking By Dates
     [Documentation]             Find a booking by checkin and checkout dates.
-    GET                 /booking?checkin\=${CREATED_BOOKINGDATES.checkin}&checkout\=${CREATED_BOOKINGDATES.checkout}
+    GET                 /booking?checkin\=${CREATED_BOOKINGDATES['checkin']}&checkout\=${CREATED_BOOKINGDATES['checkout']}
     Integer             response status                                 200
     Array               response body
     Object              $[?(@.bookingid\=\=${CREATED_BOOKING_ID})]
