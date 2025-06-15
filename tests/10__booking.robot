@@ -23,24 +23,24 @@ Create a Booking
     [Teardown]                  Delete Created Booking
 
 Get Bookings
-    [Documentation]    Expect an Array of bookings, each with an Integer bookingid.
+    [Documentation]             Expect an Array of bookings, each with an Integer bookingid.
     [Tags]                      get  get_all
 
     Get All Bookings
 
 Query Bookings by Firstname and lastname
-    [Documentation]     Expect an Array of bookings, each with an Integer bookingid. Filter by firstname and lastname.
-    [Tags]              get  query   filter
-    [Setup]             Create Booking
+    [Documentation]             Expect an Array of bookings, each with an Integer bookingid. Filter by firstname and lastname.
+    [Tags]                      get  query   filter
+    [Setup]                     Create Booking
 
     Find Created Booking By Name
 
-    [Teardown]          Delete Created Booking
+    [Teardown]                  Delete Created Booking
 
 Query Bookings by checkin and checkout dates
-    [Documentation]    Expect an Array of bookings, each with an Integer bookingid. Filter by checkin and checkout dates.
-    [Tags]             get  query   filter
-    [Setup]            Create Booking
+    [Documentation]             Expect an Array of bookings, each with an Integer bookingid. Filter by checkin and checkout dates.
+    [Tags]                      get  query   filter
+    [Setup]                     Create Booking
 
     Find Created Booking By Dates
 

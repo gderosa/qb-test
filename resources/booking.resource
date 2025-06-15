@@ -5,35 +5,35 @@
 
 *** Settings ***
 Library         Collections
-Library         REST    url=%{ROBOT_API_URL}
+Library         REST                url=%{ROBOT_API_URL}
 
 Variables       ../data/booking.py
 
 
 *** Keywords ***
 Verify Booking Response
-    [Arguments]     ${booking}                          ${expected}
-    Object          ${booking}
-    String          ${booking} firstname                ${expected['firstname']}
-    String          ${booking} lastname                 ${expected['lastname']}
-    Integer         ${booking} totalprice               ${expected['totalprice']}
-    Boolean         ${booking} depositpaid              ${expected['depositpaid']}
-    Object          ${booking} bookingdates
-    String          ${booking} bookingdates checkin     ${expected['bookingdates']['checkin']}
-    String          ${booking} bookingdates checkout    ${expected['bookingdates']['checkout']}
-    String          ${booking} additionalneeds          ${expected['additionalneeds']}
+    [Arguments]                 ${booking}                          ${expected}
+    Object                      ${booking}
+    String                      ${booking} firstname                ${expected['firstname']}
+    String                      ${booking} lastname                 ${expected['lastname']}
+    Integer                     ${booking} totalprice               ${expected['totalprice']}
+    Boolean                     ${booking} depositpaid              ${expected['depositpaid']}
+    Object                      ${booking} bookingdates
+    String                      ${booking} bookingdates checkin     ${expected['bookingdates']['checkin']}
+    String                      ${booking} bookingdates checkout    ${expected['bookingdates']['checkout']}
+    String                      ${booking} additionalneeds          ${expected['additionalneeds']}
 
 Verify Booking Schema Only
-    [Arguments]     ${booking}
-    Object          ${booking}
-    String          ${booking} firstname
-    String          ${booking} lastname
-    Integer         ${booking} totalprice
-    Boolean         ${booking} depositpaid
-    Object          ${booking} bookingdates
-    String          ${booking} bookingdates checkin
-    String          ${booking} bookingdates checkout
-    String          ${booking} additionalneeds
+    [Arguments]                 ${booking}
+    Object                      ${booking}
+    String                      ${booking} firstname
+    String                      ${booking} lastname
+    Integer                     ${booking} totalprice
+    Boolean                     ${booking} depositpaid
+    Object                      ${booking} bookingdates
+    String                      ${booking} bookingdates checkin
+    String                      ${booking} bookingdates checkout
+    String                      ${booking} additionalneeds
 
 Create Booking
     [Documentation]    Create a booking with the given details.
@@ -56,18 +56,19 @@ Verify Created Booking
 
 Find Created Booking By Name
     [Documentation]             Find a booking by firstname and lastname.
-    GET                 /booking?firstname\=${CREATED_BOOKING['firstname']}&lastname\=${CREATED_BOOKING['lastname']}
-    Integer             response status                                 200
-    Array               response body
-    Integer             $[0].bookingid
-    Object              $[?(@.bookingid\=\=${CREATED_BOOKING_ID})]
+    GET                         /booking?firstname\=${CREATED_BOOKING['firstname']}&lastname\=${CREATED_BOOKING['lastname']}
+    Integer                     response status                         200
+    Array                       response body
+    Integer                     $[0].bookingid
+    Object                      $[?(@.bookingid\=\=${CREATED_BOOKING_ID})]
 
 Find Created Booking By Dates
     [Documentation]             Find a booking by checkin and checkout dates.
-    GET                 /booking?checkin\=${CREATED_BOOKINGDATES['checkin']}&checkout\=${CREATED_BOOKINGDATES['checkout']}
-    Integer             response status                                 200
-    Array               response body
-    Object              $[?(@.bookingid\=\=${CREATED_BOOKING_ID})]
+    GET                         
+    ...    /booking?checkin\=${CREATED_BOOKINGDATES['checkin']}&checkout\=${CREATED_BOOKINGDATES['checkout']}
+    Integer                     response status                         200
+    Array                       response body
+    Object                      $[?(@.bookingid\=\=${CREATED_BOOKING_ID})]
 
 Delete Created Booking
     [Documentation]             Delete a booking with the given bookingid.
