@@ -1,3 +1,7 @@
+## Tests
+
+* [Restful-Booker API](https://restful-booker.herokuapp.com/apidoc/)
+
 ## Based on
 * [Robot Framework](https://robotframework.org/)
 * [RESTInstance](https://github.com/asyrjasalo/RESTinstance)
